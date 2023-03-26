@@ -4,10 +4,8 @@ pub struct Cabbage {
 }
 
 impl Cabbage {
-   pub fn new() -> Self {
-        return Cabbage {
-            days: 0,
-        }
+    pub fn new() -> Self {
+        return Cabbage { days: 0 };
     }
 
     pub fn speak(&self) -> String {
