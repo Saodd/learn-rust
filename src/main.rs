@@ -1,8 +1,19 @@
-mod garden;
-
+struct ImportantExcerpt<'a> {
+    part: &'a str,
+}
+impl<'a> ImportantExcerpt<'a> {
+    fn announce_and_return_part(&'a self, announcement: &'a str) -> &'a str {
+        return announcement;
+    }
+}
 fn main() {
-    let cab = garden::cabbage::Cabbage::new();
-    println!("I'm growing {:?}, it says: {}", cab, cab.speak());
+    let string1 = String::from("long string is long");
 
-    learn_rust::eat_at_restaurant()
+    let ex = ImportantExcerpt { part: &*string1 };
+    let result;
+    {
+        let string2 = String::from("xyz");
+        result = ex.announce_and_return_part(&string2) // error !
+    }
+    println!("The longest string is {}", result);
 }
