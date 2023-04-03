@@ -12,6 +12,11 @@ impl Client {
         });
     }
 
+    pub fn set_ignore_case(&mut self) {
+        self.word = self.word.to_lowercase();
+        self.file = self.file.to_lowercase();
+    }
+
     pub fn search(&self) -> Vec<&str> {
         let mut res: Vec<&str> = Vec::new();
         let word = &self.word;
@@ -21,6 +26,15 @@ impl Client {
             }
         }
         return res;
+    }
+}
+
+impl Default for Client {
+    fn default() -> Client {
+        Client {
+            word: "".to_string(),
+            file: "".to_string(),
+        }
     }
 }
 
@@ -38,13 +52,26 @@ mod tests {
         let client = Client {
             word: "key".to_string(),
             file: "key\nhaha".to_string(),
+            ..Default::default()
         };
         assert_eq!(client.search(), vec!["key"]);
 
         let client = Client {
             word: "key".to_string(),
             file: "key\nhaha\nkey2".to_string(),
+            ..Default::default()
         };
         assert_eq!(client.search(), vec!["key", "key2"]);
+    }
+
+    #[test]
+    fn client_search_ignore_case() {
+        let mut client = Client {
+            word: "Key".to_string(),
+            file: "keY\nhaha".to_string(),
+            ..Default::default()
+        };
+        client.set_ignore_case();
+        assert_eq!(client.search(), vec!["key"]);
     }
 }

@@ -2,7 +2,10 @@ use std::env;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (keyword, filepath) = parse_args()?;
-    let client = learn_rust::minigrep::Client::new(&keyword, &filepath)?;
+    let mut client = learn_rust::minigrep::Client::new(&keyword, &filepath)?;
+    if env::var("IGNORE_CASE").is_ok() {
+        client.set_ignore_case();
+    }
     for line in client.search() {
         println!("{}", line)
     }
