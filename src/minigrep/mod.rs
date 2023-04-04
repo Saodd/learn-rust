@@ -17,13 +17,8 @@ impl Client {
         self.file = self.file.to_lowercase();
     }
 
-    pub fn search(&self) -> Vec<&str> {
-        let word = &self.word;
-        return self
-            .file
-            .lines()
-            .filter(|line| line.contains(word))
-            .collect();
+    pub fn search(&self) -> impl Iterator<Item = &str> {
+        return self.file.lines().filter(|line| line.contains(&self.word));
     }
 }
 
@@ -52,14 +47,14 @@ mod tests {
             file: "key\nhaha".to_string(),
             ..Default::default()
         };
-        assert_eq!(client.search(), vec!["key"]);
+        assert_eq!(client.search().collect::<Vec<&str>>(), vec!["key"]);
 
         let client = Client {
             word: "key".to_string(),
             file: "key\nhaha\nkey2".to_string(),
             ..Default::default()
         };
-        assert_eq!(client.search(), vec!["key", "key2"]);
+        assert_eq!(client.search().collect::<Vec<&str>>(), vec!["key", "key2"]);
     }
 
     #[test]
@@ -70,6 +65,6 @@ mod tests {
             ..Default::default()
         };
         client.set_ignore_case();
-        assert_eq!(client.search(), vec!["key"]);
+        assert_eq!(client.search().collect::<Vec<&str>>(), vec!["key"]);
     }
 }
