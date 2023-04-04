@@ -18,14 +18,12 @@ impl Client {
     }
 
     pub fn search(&self) -> Vec<&str> {
-        let mut res: Vec<&str> = Vec::new();
         let word = &self.word;
-        for line in self.file.lines() {
-            if line.contains(word) {
-                res.push(line);
-            }
-        }
-        return res;
+        return self
+            .file
+            .lines()
+            .filter(|line| line.contains(word))
+            .collect();
     }
 }
 

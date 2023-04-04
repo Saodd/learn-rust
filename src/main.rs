@@ -13,12 +13,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn parse_args() -> Result<(String, String), &'static str> {
-    let mut args: Vec<String> = env::args().collect();
-    if args.len() != 3 {
-        return Err("you should input exact 3 args: xxx keyword filepath");
-    }
-    let keywords = args.remove(1);
-    let filepath = args.remove(1);
+    let mut args = env::args();
 
-    return Ok((keywords, filepath));
+    let _ = args.next();
+    let keyword = match args.next() {
+        None => return Err("Didn't get keyword argument"),
+        Some(arg) => arg,
+    };
+    let filepath = match args.next() {
+        None => return Err("Didn't get filepath argument"),
+        Some(arg) => arg,
+    };
+
+    return Ok((keyword, filepath));
 }
