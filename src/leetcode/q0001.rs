@@ -11,16 +11,16 @@ impl Solution {
     ///
     /// 提示：
     ///
-    /// 2 <= nums.length <= 104
-    /// -109 <= nums[i] <= 109
-    /// -109 <= target <= 109
-    /// 只会存在一个有效答案
+    /// 2 <= nums.length <= 104  
+    /// -109 <= `nums[i]` <= 109  
+    /// -109 <= target <= 109  
+    /// 只会存在一个有效答案  
     ///
     /// 进阶：你可以想出一个时间复杂度小于 O(n2) 的算法吗？
     ///
-    /// 来源：力扣（LeetCode）
-    /// 链接：https://leetcode.cn/problems/two-sum
-    /// 著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+    /// 来源：力扣（LeetCode）  
+    /// 链接：<https://leetcode.cn/problems/two-sum>  
+    /// 著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。  
     pub fn two_sum(nums: Vec<i32>, target: i32) -> Vec<i32> {
         let mut map: HashMap<i32, usize> = HashMap::with_capacity(nums.len());
 
