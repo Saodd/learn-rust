@@ -1,16 +1,19 @@
-use super::helper::ListNode;
+use super::helper::list_node::ListNode;
 use super::Solution;
 
 impl Solution {
-    /// 21. 合并两个有序链表
+    /// 21. 合并两个有序链表（简单）
     ///
     /// 将两个升序链表合并为一个新的 升序 链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。
     ///
     /// 提示：
     ///
-    /// 两个链表的节点数目范围是 `[0, 50]`
-    /// -100 <= Node.val <= 100
-    /// l1 和 l2 均按 非递减顺序 排列
+    /// 两个链表的节点数目范围是 `[0, 50]`  
+    /// -100 <= Node.val <= 100  
+    /// l1 和 l2 均按 非递减顺序 排列  
+    ///
+    /// 来源：力扣（LeetCode）  
+    /// 链接：<https://leetcode.cn/problems/merge-two-sorted-lists/>  
     pub fn merge_two_lists(
         list1: Option<Box<ListNode>>,
         list2: Option<Box<ListNode>>,

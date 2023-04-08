@@ -3,7 +3,7 @@ use std::str::Chars;
 use super::Solution;
 
 impl Solution {
-    /// 14. 最长公共前缀
+    /// 14. 最长公共前缀（简单）
     ///
     /// 编写一个函数来查找字符串数组中的最长公共前缀。
     ///
@@ -17,7 +17,6 @@ impl Solution {
     ///
     /// 来源：力扣（LeetCode）  
     /// 链接：<https://leetcode.cn/problems/longest-common-prefix/>  
-    /// 著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。  
     pub fn longest_common_prefix(strs: Vec<String>) -> String {
         let mut res = String::with_capacity(strs[0].len());
 
