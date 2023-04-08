@@ -15,39 +15,20 @@ impl Solution {
         list1: Option<Box<ListNode>>,
         list2: Option<Box<ListNode>>,
     ) -> Option<Box<ListNode>> {
-        let mut l1 = list1;
-        let mut l2 = list2;
-
-        let mut dumb = Box::new(ListNode::new(0));
-        let mut tail = &mut dumb;
-        loop {
-            let temp1 = match &mut l1 {
-                None => {
-                    tail.next = l2;
-                    break;
+        return match (list1, list2) {
+            (None, None) => None,
+            (None, l2) => l2,
+            (l1, None) => l1,
+            (Some(mut l1), Some(mut l2)) => {
+                if l1.val < l2.val {
+                    l1.next = Self::merge_two_lists(l1.next, Some(l2));
+                    Some(l1)
+                } else {
+                    l2.next = Self::merge_two_lists(Some(l1), l2.next);
+                    Some(l2)
                 }
-                Some(list) => list,
-            };
-            let temp2 = match &mut l2 {
-                None => {
-                    tail.next = l1;
-                    break;
-                }
-                Some(list) => list,
-            };
-            if temp1.val < temp2.val {
-                let next = temp1.next.take();
-                tail.next = l1;
-                l1 = next;
-            } else {
-                let next = temp2.next.take();
-                tail.next = l2;
-                l2 = next;
             }
-            tail = tail.next.as_mut().unwrap();
-        }
-
-        return dumb.next;
+        };
     }
 }
 
