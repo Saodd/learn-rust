@@ -11,16 +11,17 @@ impl ListNode {
     }
 
     pub fn new_from_vec(nums: Vec<i32>) -> Option<Box<Self>> {
-        let mut head: Box<Self> = Box::new(Self::new(0));
+        return Self::new_from_iter(nums.into_iter());
+    }
 
-        for num in nums.iter().rev() {
-            head.val = *num;
-            head = Box::new(ListNode {
-                next: Some(head),
-                val: 0,
-            })
-        }
-        return head.next;
+    pub fn new_from_iter(mut iter: impl Iterator<Item = i32>) -> Option<Box<Self>> {
+        return match iter.next() {
+            None => None,
+            Some(val) => Some(Box::new(Self {
+                val,
+                next: Self::new_from_iter(iter),
+            })),
+        };
     }
 }
 
