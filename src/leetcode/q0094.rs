@@ -48,23 +48,20 @@ impl Solution {
             stack.push(Mark::Todo(root))
         }
 
-        loop {
-            match stack.pop() {
-                None => break,
-                Some(mark) => match mark {
-                    Mark::Val(val) => res.push(val),
-                    Mark::Todo(node) => {
-                        let borrowed = node.borrow();
+        while let Some(mark) = stack.pop() {
+            match mark {
+                Mark::Val(val) => res.push(val),
+                Mark::Todo(node) => {
+                    let borrowed = node.borrow();
 
-                        if let Some(right) = &borrowed.right {
-                            stack.push(Mark::Todo(right.clone()))
-                        }
-                        stack.push(Mark::Val(borrowed.val));
-                        if let Some(left) = &borrowed.left {
-                            stack.push(Mark::Todo(left.clone()))
-                        }
+                    if let Some(right) = &borrowed.right {
+                        stack.push(Mark::Todo(right.clone()))
                     }
-                },
+                    stack.push(Mark::Val(borrowed.val));
+                    if let Some(left) = &borrowed.left {
+                        stack.push(Mark::Todo(left.clone()))
+                    }
+                }
             }
         }
 
