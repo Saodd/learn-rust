@@ -15,31 +15,11 @@ impl Context<'_> {
     }
 }
 
-pub struct Server {
+struct Router {
     get_handlers: HashMap<String, Handler>,
 }
 
-impl Server {
-    pub fn new() -> Self {
-        return Self {
-            get_handlers: HashMap::new(),
-        };
-    }
-
-    pub fn get(&mut self, path: &str, handler: Handler) {
-        self.get_handlers.insert(String::from(path), handler);
-    }
-
-    pub fn run(&self, addr: &str) {
-        let listener = TcpListener::bind(addr).unwrap();
-
-        for incoming in listener.incoming() {
-            let stream = incoming.unwrap();
-
-            self.handle_stream(stream);
-        }
-    }
-
+impl Router {
     fn handle_stream(&self, mut stream: TcpStream) {
         println!("新的stream耶！");
         loop {
@@ -78,5 +58,33 @@ impl Server {
         let response =
             format!("HTTP/1.1 404 Not found\r\nContent-Length: {resp_body_len}\r\n\r\n{resp_body}");
         stream.write_all(response.as_bytes()).unwrap();
+    }
+}
+
+pub struct Server {
+    router: Router,
+}
+
+impl Server {
+    pub fn new() -> Self {
+        return Self {
+            router: Router {
+                get_handlers: HashMap::new(),
+            },
+        };
+    }
+
+    pub fn get(&mut self, path: &str, handler: Handler) {
+        self.router.get_handlers.insert(String::from(path), handler);
+    }
+
+    pub fn run(&self, addr: &str) {
+        let listener = TcpListener::bind(addr).unwrap();
+
+        for incoming in listener.incoming() {
+            let stream = incoming.unwrap();
+
+            self.router.handle_stream(stream);
+        }
     }
 }
