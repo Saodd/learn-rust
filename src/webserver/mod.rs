@@ -4,10 +4,12 @@ use crate::webserver::thread_pool::ThreadPool;
 use std::collections::{HashMap, VecDeque};
 use std::io::{BufRead, BufReader, Write};
 use std::net::{TcpListener, TcpStream};
+use std::ops::Deref;
+use std::panic::{catch_unwind, UnwindSafe};
 use std::sync::Arc;
 use std::thread::Thread;
 
-type Handler = Box<dyn Fn(&mut Context) + Sync + Send>;
+type Handler = fn(&mut Context);
 
 #[derive(Debug)]
 pub struct Context<'a> {
@@ -22,6 +24,21 @@ impl Context<'_> {
 
 struct Router {
     pub get_handlers: HashMap<String, Handler>,
+}
+
+impl UnwindSafe for Router {}
+
+impl Clone for Router {
+    fn clone(&self) -> Self {
+        let mut handlers = HashMap::new();
+        for (key, value) in &self.get_handlers {
+            handlers.insert(key.clone(), value.clone());
+        }
+
+        return Self {
+            get_handlers: handlers,
+        };
+    }
 }
 
 impl Router {
@@ -67,36 +84,37 @@ impl Router {
 }
 
 pub struct Server {
-    router: Option<Router>,
+    router: Router,
 }
 
 impl Server {
     pub fn new() -> Self {
         return Self {
-            router: Some(Router {
+            router: Router {
                 get_handlers: HashMap::new(),
-            }),
+            },
         };
     }
 
     pub fn get(&mut self, path: &str, handler: Handler) {
-        self.router
-            .as_mut()
-            .unwrap()
-            .get_handlers
-            .insert(String::from(path), handler);
+        self.router.get_handlers.insert(String::from(path), handler);
     }
 
     pub fn run(&mut self, addr: &str) {
         let listener = TcpListener::bind(addr).unwrap();
         let pool = ThreadPool::new(8);
-        let router = Arc::new(self.router.take().unwrap());
+        // let router = Arc::new(self.router.take().unwrap());
 
         for incoming in listener.incoming() {
             let stream = incoming.unwrap();
-            let router = router.clone();
-            pool.execute(Box::new(move || router.handle_stream(stream)))
-                .unwrap();
+            let router = self.router.clone();
+            pool.execute(Box::new(move || {
+                router.handle_stream(stream)
+                // if let Err(e) = catch_unwind(|| router.handle_stream(stream)) {
+                //     println!("err!")
+                // }
+            }))
+            .unwrap();
         }
     }
 }

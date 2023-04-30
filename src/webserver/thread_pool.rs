@@ -1,11 +1,11 @@
 use std::ops::Deref;
-use std::panic::catch_unwind;
+use std::panic::{catch_unwind, UnwindSafe};
 use std::sync::mpsc::{channel, Receiver, SendError, Sender};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::thread::{JoinHandle, Thread};
 
-type Job = Box<dyn FnOnce() + Send + 'static>;
+type Job = Box<dyn FnOnce() + Send + UnwindSafe + 'static>;
 
 pub struct ThreadPool {
     sender: Sender<Job>,
@@ -27,7 +27,7 @@ impl ThreadPool {
 
     pub fn execute<F>(&self, f: F) -> Result<(), SendError<Job>>
     where
-        F: FnOnce() + Send + 'static,
+        F: FnOnce() + Send + UnwindSafe + 'static,
     {
         self.sender.send(Box::new(f))
     }
@@ -42,7 +42,10 @@ impl Worker {
     fn new(id: usize, receiver: Arc<Mutex<Receiver<Job>>>) -> Self {
         let t = thread::spawn(move || loop {
             let job = receiver.lock().unwrap().recv().unwrap();
-            job()
+            // job()
+            if let Err(e) = catch_unwind(job) {
+                println!("[ThreadPool.Worker.{id}] panic: {:#?}", e)
+            }
         });
         return Self { id, thread: t };
     }
