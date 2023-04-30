@@ -1,4 +1,4 @@
-use std::io::{BufRead, BufReader};
+use std::io::{BufRead, BufReader, Write};
 use std::net::{TcpListener, TcpStream};
 
 pub struct Server {}
@@ -14,8 +14,8 @@ impl Server {
         }
     }
 
-    fn handle_stream(stream: TcpStream) {
-        let buf = BufReader::new(stream);
+    fn handle_stream(mut stream: TcpStream) {
+        let buf = BufReader::new(&stream);
 
         let req: Vec<String> = buf
             .lines()
@@ -23,5 +23,11 @@ impl Server {
             .take_while(|line| !line.is_empty())
             .collect();
         println!("Request: {:#?}", req);
+
+        let resp_body = "hello, world!";
+        let resp_body_len = resp_body.len();
+        let response =
+            format!("HTTP/1.1 200 OK\r\nContent-Length: {resp_body_len}\r\n\r\n{resp_body}");
+        stream.write_all(response.as_bytes()).unwrap();
     }
 }
