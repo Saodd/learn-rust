@@ -1,8 +1,13 @@
+mod thread_pool;
+
+use crate::webserver::thread_pool::ThreadPool;
 use std::collections::{HashMap, VecDeque};
 use std::io::{BufRead, BufReader, Write};
 use std::net::{TcpListener, TcpStream};
+use std::sync::Arc;
+use std::thread::Thread;
 
-type Handler = Box<dyn Fn(&mut Context) -> ()>;
+type Handler = Box<dyn Fn(&mut Context) + Sync + Send>;
 
 #[derive(Debug)]
 pub struct Context<'a> {
@@ -16,7 +21,7 @@ impl Context<'_> {
 }
 
 struct Router {
-    get_handlers: HashMap<String, Handler>,
+    pub get_handlers: HashMap<String, Handler>,
 }
 
 impl Router {
@@ -62,29 +67,36 @@ impl Router {
 }
 
 pub struct Server {
-    router: Router,
+    router: Option<Router>,
 }
 
 impl Server {
     pub fn new() -> Self {
         return Self {
-            router: Router {
+            router: Some(Router {
                 get_handlers: HashMap::new(),
-            },
+            }),
         };
     }
 
     pub fn get(&mut self, path: &str, handler: Handler) {
-        self.router.get_handlers.insert(String::from(path), handler);
+        self.router
+            .as_mut()
+            .unwrap()
+            .get_handlers
+            .insert(String::from(path), handler);
     }
 
-    pub fn run(&self, addr: &str) {
+    pub fn run(&mut self, addr: &str) {
         let listener = TcpListener::bind(addr).unwrap();
+        let pool = ThreadPool::new(8);
+        let router = Arc::new(self.router.take().unwrap());
 
         for incoming in listener.incoming() {
             let stream = incoming.unwrap();
-
-            self.router.handle_stream(stream);
+            let router = router.clone();
+            pool.execute(Box::new(move || router.handle_stream(stream)))
+                .unwrap();
         }
     }
 }
